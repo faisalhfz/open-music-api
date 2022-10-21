@@ -1,13 +1,34 @@
 require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
-const albums = require('./api/albums');
-const songs = require('./api/songs');
+const Jwt = require('@hapi/jwt');
+
 const ClientError = require('./exceptions/ClientError');
+
+// apis
+const albums = require('./api/albums');
+const authentications = require('./api/authentications');
+const songs = require('./api/songs');
+const users = require('./api/users');
+const playlists = require('./api/playlists');
+const collaborations = require('./collaborations');
+
+// services
 const AlbumService = require('./services/AlbumService');
+const AuthenticationService = require('./services/AuthenticationService');
 const SongService = require('./services/SongService');
+const UserService = require('./services/UserService');
+const TokenManager = require('./tokenize/TokenManager');
+const PlaylistService = require('./services/PlaylistService');
+const CollaborationService = require('./services/CollaborationService');
+
+// validators
 const AlbumsValidator = require('./validator/albums');
 const SongsValidator = require('./validator/songs');
+const UsersValidator = require('./validator/users');
+const AuthenticationsValidator = require('./validator/authentications');
+const PlaylistsValidator = require('./validator/playlists');
+const CollaborationsValidator = require('./validator/collaborations');
 
 const init = async () => {
   const server = Hapi.server({
@@ -20,9 +41,41 @@ const init = async () => {
     },
   });
 
+  // authorization schema
+  await server.register([
+    {
+      plugin: Jwt,
+    },
+  ]);
+
+  server.auth.strategy('openmusic_jwt', 'jwt', {
+    keys: process.env.ACCESS_TOKEN_KEY,
+    verify: {
+      aud: false,
+      iss: false,
+      sub: false,
+      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+    },
+    validate: (artifacts) => ({
+      isValid: true,
+      credentials: {
+        id: artifacts.decoded.payload.id,
+      },
+    }),
+  });
+
+  // initializing services
   const albumService = new AlbumService();
   const songService = new SongService();
+  const userService = new UserService();
+  const authenticationService = new AuthenticationService();
+  const collaborationService = new CollaborationService();
+  const playlistService = new PlaylistService(
+    songService,
+    collaborationService,
+  );
 
+  // plugins registration
   await server.register([
     {
       plugin: albums,
@@ -38,8 +91,40 @@ const init = async () => {
         validator: SongsValidator,
       },
     },
+    {
+      plugin: users,
+      options: {
+        service: userService,
+        validator: UsersValidator,
+      },
+    },
+    {
+      plugin: authentications,
+      options: {
+        authenticationService,
+        userService,
+        tokenManager: TokenManager,
+        validator: AuthenticationsValidator,
+      },
+    },
+    {
+      plugin: playlists,
+      options: {
+        service: playlistService,
+        validator: PlaylistsValidator,
+      },
+    },
+    {
+      plugin: collaborations,
+      options: {
+        collaborationService,
+        playlistService,
+        validator: CollaborationsValidator,
+      },
+    },
   ]);
 
+  // pre-response error handling
   server.ext('onPreResponse', (request, h) => {
     const { response } = request;
 
