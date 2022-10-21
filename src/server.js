@@ -11,7 +11,7 @@ const authentications = require('./api/authentications');
 const songs = require('./api/songs');
 const users = require('./api/users');
 const playlists = require('./api/playlists');
-const collaborations = require('./collaborations');
+const collaborations = require('./api/collaborations');
 
 // services
 const AlbumService = require('./services/AlbumService');
@@ -72,7 +72,7 @@ const init = async () => {
   const collaborationService = new CollaborationService();
   const playlistService = new PlaylistService(
     songService,
-    collaborationService,
+    collaborationService
   );
 
   // plugins registration
