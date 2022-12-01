@@ -20,8 +20,8 @@ class AlbumsHandler {
       .code(201);
   }
 
-  async getAlbumByIdHandler(request) {
-    const { id } = request.params;
+  async getAlbumByIdHandler({ params }) {
+    const { id } = params;
 
     const album = await this._service.getAlbumById(id);
 
@@ -44,12 +44,12 @@ class AlbumsHandler {
     };
   }
 
-  async putAlbumByIdHandler(request) {
-    this._validator.validateAlbumPayload(request.payload);
+  async putAlbumByIdHandler({ params, payload }) {
+    this._validator.validateAlbumPayload(payload);
 
-    const { id } = request.params;
+    const { id } = params;
 
-    await this._service.editAlbumById(id, request.payload);
+    await this._service.editAlbumById(id, payload);
 
     return {
       status: 'success',
@@ -57,8 +57,8 @@ class AlbumsHandler {
     };
   }
 
-  async deleteAlbumByIdHandler(request) {
-    const { id } = request.params;
+  async deleteAlbumByIdHandler({ params }) {
+    const { id } = params;
 
     await this._service.deleteAlbumById(id);
 

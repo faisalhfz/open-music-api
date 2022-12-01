@@ -10,6 +10,8 @@
   },
   "rules": {
     "no-console": "off",
-    "no-underscore-dangle": "off"
+    "no-underscore-dangle": "off",
+    "linebreak-style": "off",
+    "comma-dangle": "off"
   }
 }
