@@ -122,7 +122,7 @@ class AlbumsHandler {
       .code(201);
   }
 
-  async deleteAlbumLikesHandler(request, h) {
+  async deleteAlbumLikesHandler(request) {
     const { id: albumId } = request.params;
     const { id: credentialsId } = request.auth.credentials;
 

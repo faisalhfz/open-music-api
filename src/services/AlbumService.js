@@ -78,7 +78,6 @@ class AlbumService {
     }
   }
 
-  //// Album cover upload
   async addAlbumCover(id, coverUrl) {
     const query = {
       text: 'UPDATE albums SET "coverUrl" = $1 WHERE id = $2 RETURNING id',
@@ -92,7 +91,6 @@ class AlbumService {
     }
   }
 
-  //// Album likes
   async getAlbumLikes(id) {
     try {
       const result = await this._cacheService.get(`likes:${id}`);
