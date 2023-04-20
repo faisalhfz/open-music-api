@@ -31,10 +31,10 @@ class PlaylistService {
   async getPlaylists(owner) {
     const query = {
       text: `SELECT playlists.id, playlists.name, users.username
-      FROM playlists
-      LEFT JOIN users ON playlists.owner = users.id
-      LEFT JOIN collaborations ON playlists.id = collaborations."playlistId"
-      WHERE playlists.owner = $1 OR collaborations."userId" = $1`,
+        FROM playlists
+        LEFT JOIN users ON playlists.owner = users.id
+        LEFT JOIN collaborations ON playlists.id = collaborations."playlistId"
+        WHERE playlists.owner = $1 OR collaborations."userId" = $1`,
       values: [owner],
     };
 
@@ -94,10 +94,10 @@ class PlaylistService {
   async getSongsFromPlaylist(playlistId) {
     const query = {
       text: `SELECT songs.id, songs.title, songs.performer
-      FROM songs 
-      LEFT JOIN playlist_songs ON songs.id = playlist_songs."songId"
-      WHERE playlist_songs."playlistId" = $1
-      GROUP BY songs.id`,
+        FROM songs 
+        LEFT JOIN playlist_songs ON songs.id = playlist_songs."songId"
+        WHERE playlist_songs."playlistId" = $1
+        GROUP BY songs.id`,
       values: [playlistId],
     };
 
@@ -154,9 +154,7 @@ class PlaylistService {
     }
   }
 
-  async addToPlaylistActivities({
-    playlistId, songId, userId, action,
-  }) {
+  async addToPlaylistActivities({ playlistId, songId, userId, action }) {
     const id = `playlist_song_activity-${nanoid(16)}`;
 
     const time = new Date().toISOString();
